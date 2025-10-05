@@ -1,0 +1,13 @@
+C:\Users\vdmit\OneDrive\Рабочий стол\Kursach1\SaDDF\MainForm\obj\Debug\MainForm.csproj.AssemblyReference.cache
+C:\Users\vdmit\OneDrive\Рабочий стол\Kursach1\SaDDF\MainForm\obj\Debug\MainForm.SaDDF.resources
+C:\Users\vdmit\OneDrive\Рабочий стол\Kursach1\SaDDF\MainForm\obj\Debug\MainForm.Properties.Resources.resources
+C:\Users\vdmit\OneDrive\Рабочий стол\Kursach1\SaDDF\MainForm\obj\Debug\MainForm.csproj.GenerateResource.cache
+C:\Users\vdmit\OneDrive\Рабочий стол\Kursach1\SaDDF\MainForm\obj\Debug\MainForm.csproj.CoreCompileInputs.cache
+C:\Users\vdmit\OneDrive\Рабочий стол\Kursach1\SaDDF\MainForm\bin\Debug\Guna.UI2.dll
+C:\Users\vdmit\OneDrive\Рабочий стол\Kursach1\SaDDF\MainForm\obj\Debug\MainForm.csproj.Up2Date
+C:\Users\vdmit\OneDrive\Рабочий стол\Kursach1\SaDDF\MainForm\bin\Debug\SaDDF - Search and Delete Duplicate Files.exe.config
+C:\Users\vdmit\OneDrive\Рабочий стол\Kursach1\SaDDF\MainForm\bin\Debug\SaDDF - Search and Delete Duplicate Files.exe
+C:\Users\vdmit\OneDrive\Рабочий стол\Kursach1\SaDDF\MainForm\bin\Debug\SaDDF - Search and Delete Duplicate Files.pdb
+C:\Users\vdmit\OneDrive\Рабочий стол\Kursach1\SaDDF\MainForm\obj\Debug\SaDDF - Search and Delete Duplicate Files.exe
+C:\Users\vdmit\OneDrive\Рабочий стол\Kursach1\SaDDF\MainForm\obj\Debug\SaDDF - Search and Delete Duplicate Files.pdb
+C:\Users\vdmit\OneDrive\Рабочий стол\Kursach1\SaDDF\MainForm\obj\Debug\SaDDF - Search and Delete Duplicate Files.exe.config

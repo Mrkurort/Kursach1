@@ -93,6 +93,7 @@ namespace MainForm
             // 
             this.tabSearch.Controls.Add(this.grpSettings);
             this.tabSearch.Controls.Add(this.grpPaths);
+            this.tabSearch.Controls.Add(this.btnScan);
             this.tabSearch.Location = new System.Drawing.Point(4, 22);
             this.tabSearch.Name = "tabSearch";
             this.tabSearch.Padding = new System.Windows.Forms.Padding(9);
@@ -226,7 +227,7 @@ namespace MainForm
             this.grpPaths.Controls.Add(this.lstSearchPaths);
             this.grpPaths.Location = new System.Drawing.Point(11, 11);
             this.grpPaths.Name = "grpPaths";
-            this.grpPaths.Size = new System.Drawing.Size(729, 156);
+            this.grpPaths.Size = new System.Drawing.Size(727, 156);
             this.grpPaths.TabIndex = 0;
             this.grpPaths.TabStop = false;
             this.grpPaths.Text = "Папки для поиска";
@@ -234,9 +235,9 @@ namespace MainForm
             // btnRemovePath
             // 
             this.btnRemovePath.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnRemovePath.Location = new System.Drawing.Point(659, 128);
+            this.btnRemovePath.Location = new System.Drawing.Point(644, 128);
             this.btnRemovePath.Name = "btnRemovePath";
-            this.btnRemovePath.Size = new System.Drawing.Size(64, 20);
+            this.btnRemovePath.Size = new System.Drawing.Size(78, 22);
             this.btnRemovePath.TabIndex = 2;
             this.btnRemovePath.Text = "Удалить";
             this.btnRemovePath.UseVisualStyleBackColor = true;
@@ -245,9 +246,9 @@ namespace MainForm
             // btnAddPath
             // 
             this.btnAddPath.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnAddPath.Location = new System.Drawing.Point(590, 128);
+            this.btnAddPath.Location = new System.Drawing.Point(559, 128);
             this.btnAddPath.Name = "btnAddPath";
-            this.btnAddPath.Size = new System.Drawing.Size(64, 20);
+            this.btnAddPath.Size = new System.Drawing.Size(84, 22);
             this.btnAddPath.TabIndex = 1;
             this.btnAddPath.Text = "Добавить";
             this.btnAddPath.UseVisualStyleBackColor = true;
@@ -260,7 +261,7 @@ namespace MainForm
             this.lstSearchPaths.FormattingEnabled = true;
             this.lstSearchPaths.Location = new System.Drawing.Point(5, 19);
             this.lstSearchPaths.Name = "lstSearchPaths";
-            this.lstSearchPaths.Size = new System.Drawing.Size(719, 108);
+            this.lstSearchPaths.Size = new System.Drawing.Size(717, 108);
             this.lstSearchPaths.TabIndex = 0;
             // 
             // tabResults
@@ -420,7 +421,7 @@ namespace MainForm
             // btnCancel
             // 
             this.btnCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnCancel.Location = new System.Drawing.Point(675, 13);
+            this.btnCancel.Location = new System.Drawing.Point(665, 13);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(72, 20);
             this.btnCancel.TabIndex = 2;
@@ -443,7 +444,7 @@ namespace MainForm
             | System.Windows.Forms.AnchorStyles.Right)));
             this.progressBar.Location = new System.Drawing.Point(73, 13);
             this.progressBar.Name = "progressBar";
-            this.progressBar.Size = new System.Drawing.Size(596, 20);
+            this.progressBar.Size = new System.Drawing.Size(585, 20);
             this.progressBar.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
             this.progressBar.TabIndex = 0;
             // 
@@ -452,7 +453,6 @@ namespace MainForm
             this.panelControls.Controls.Add(this.lblSummary);
             this.panelControls.Controls.Add(this.cmbDeleteStrategy);
             this.panelControls.Controls.Add(this.btnDelete);
-            this.panelControls.Controls.Add(this.btnScan);
             this.panelControls.Controls.Add(this.lblStatus);
             this.panelControls.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.panelControls.Location = new System.Drawing.Point(0, 443);
@@ -475,18 +475,18 @@ namespace MainForm
             this.cmbDeleteStrategy.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cmbDeleteStrategy.Enabled = false;
             this.cmbDeleteStrategy.FormattingEnabled = true;
-            this.cmbDeleteStrategy.Location = new System.Drawing.Point(330, 13);
+            this.cmbDeleteStrategy.Location = new System.Drawing.Point(323, 13);
             this.cmbDeleteStrategy.Name = "cmbDeleteStrategy";
-            this.cmbDeleteStrategy.Size = new System.Drawing.Size(189, 21);
+            this.cmbDeleteStrategy.Size = new System.Drawing.Size(269, 21);
             this.cmbDeleteStrategy.TabIndex = 3;
             // 
             // btnDelete
             // 
             this.btnDelete.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btnDelete.Enabled = false;
-            this.btnDelete.Location = new System.Drawing.Point(543, 9);
+            this.btnDelete.Location = new System.Drawing.Point(597, 9);
             this.btnDelete.Name = "btnDelete";
-            this.btnDelete.Size = new System.Drawing.Size(84, 27);
+            this.btnDelete.Size = new System.Drawing.Size(140, 27);
             this.btnDelete.TabIndex = 2;
             this.btnDelete.Text = "Удалить";
             this.btnDelete.UseVisualStyleBackColor = true;
@@ -494,10 +494,12 @@ namespace MainForm
             // 
             // btnScan
             // 
-            this.btnScan.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnScan.Location = new System.Drawing.Point(645, 9);
+            this.btnScan.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnScan.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.btnScan.Location = new System.Drawing.Point(278, 335);
             this.btnScan.Name = "btnScan";
-            this.btnScan.Size = new System.Drawing.Size(109, 27);
+            this.btnScan.Size = new System.Drawing.Size(203, 27);
             this.btnScan.TabIndex = 1;
             this.btnScan.Text = "Сканировать";
             this.btnScan.UseVisualStyleBackColor = true;

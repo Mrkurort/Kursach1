@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 public class DuplicateManager
@@ -11,34 +12,25 @@ public class DuplicateManager
         KeepOldest,
         KeepNewest,
         KeepFirstFound,
-        KeepSpecificPath
+        KeepLargestName,
+        KeepShortestName
     }
 
-    public async Task<List<string>> DeleteDuplicatesAsync(
+    public async Task<DeleteResult> DeleteDuplicatesAsync(
         List<DuplicateGroup> duplicateGroups,
         DeleteStrategy strategy,
-        string keepPath = null,
-        IProgress<int> progress = null)
+        IProgress<int> progress = null,
+        CancellationToken cancellationToken = default)
     {
-        return await DeleteDuplicatesAsync(duplicateGroups, strategy, keepPath, progress, System.Threading.CancellationToken.None);
-    }
-
-    public async Task<List<string>> DeleteDuplicatesAsync(
-        List<DuplicateGroup> duplicateGroups,
-        DeleteStrategy strategy,
-        string keepPath,
-        IProgress<int> progress,
-        System.Threading.CancellationToken cancellationToken)
-    {
-        var deletedFiles = new List<string>();
-        int totalFiles = duplicateGroups.Sum(g => g.Files.Count - 1);
+        var result = new DeleteResult();
+        int totalFilesToDelete = duplicateGroups.Sum(g => g.Files.Count - 1);
         int processed = 0;
 
         foreach (var group in duplicateGroups)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var filesToDelete = GetFilesToDelete(group, strategy, keepPath);
+            var filesToDelete = GetFilesToDelete(group, strategy);
 
             foreach (var file in filesToDelete)
             {
@@ -46,25 +38,44 @@ public class DuplicateManager
 
                 try
                 {
-                    File.Delete(file.Path);
-                    deletedFiles.Add(file.Path);
+                    if (File.Exists(file.Path))
+                    {
+                        File.Delete(file.Path);
+                        result.DeletedFiles.Add(file.Path);
+                        result.TotalFreedSpace += file.Size;
+                    }
+                    else
+                    {
+                        result.NotFoundFiles.Add(file.Path);
+                    }
+                }
+                catch (UnauthorizedAccessException ex)
+                {
+                    result.Errors.Add($"Нет прав доступа: {file.Path} - {ex.Message}");
+                }
+                catch (IOException ex)
+                {
+                    result.Errors.Add($"Ошибка ввода-вывода: {file.Path} - {ex.Message}");
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Ошибка при удалении файла {file.Path}: {ex.Message}");
+                    result.Errors.Add($"Ошибка при удалении {file.Path}: {ex.Message}");
                 }
 
                 processed++;
-                progress?.Report((processed * 100) / Math.Max(1, totalFiles));
+                progress?.Report((processed * 100) / Math.Max(1, totalFilesToDelete));
             }
         }
 
-        return deletedFiles;
+        return result;
     }
 
-    private List<FileInfoSaDDF> GetFilesToDelete(DuplicateGroup group, DeleteStrategy strategy, string keepPath)
+    private List<FileInfoSaDDF> GetFilesToDelete(DuplicateGroup group, DeleteStrategy strategy)
     {
         var files = group.Files;
+
+        if (files.Count <= 1)
+            return new List<FileInfoSaDDF>();
 
         switch (strategy)
         {
@@ -80,21 +91,32 @@ public class DuplicateManager
                 var first = files.OrderBy(f => f.Path).First();
                 return files.Except(new[] { first }).ToList();
 
-            case DeleteStrategy.KeepSpecificPath:
-                if (!string.IsNullOrEmpty(keepPath))
-                {
-                    var keepFile = files.FirstOrDefault(f =>
-                        f.Path.StartsWith(keepPath, StringComparison.OrdinalIgnoreCase));
-                    if (keepFile != null)
-                    {
-                        return files.Except(new[] { keepFile }).ToList();
-                    }
-                }
-                goto case DeleteStrategy.KeepOldest;
+            case DeleteStrategy.KeepLargestName:
+                var largestName = files.OrderByDescending(f => f.Name.Length).First();
+                return files.Except(new[] { largestName }).ToList();
+
+            case DeleteStrategy.KeepShortestName:
+                var shortestName = files.OrderBy(f => f.Name.Length).First();
+                return files.Except(new[] { shortestName }).ToList();
 
             default:
                 return files.Skip(1).ToList();
         }
+    }
+
+    public async Task<DeleteResult> DeleteSelectedDuplicatesAsync(
+        List<DuplicateGroup> allDuplicates,
+        List<int> selectedGroupIndices,
+        DeleteStrategy strategy,
+        IProgress<int> progress = null,
+        CancellationToken cancellationToken = default)
+    {
+        var selectedGroups = selectedGroupIndices
+            .Where(i => i >= 0 && i < allDuplicates.Count)
+            .Select(i => allDuplicates[i])
+            .ToList();
+
+        return await DeleteDuplicatesAsync(selectedGroups, strategy, progress, cancellationToken);
     }
 
     public void MoveDuplicatesToFolder(List<DuplicateGroup> duplicateGroups, string targetFolder)
@@ -110,10 +132,13 @@ public class DuplicateManager
             {
                 try
                 {
-                    var newPath = Path.Combine(targetFolder,
-                        $"{Path.GetFileNameWithoutExtension(file.Name)}_dup_{Guid.NewGuid():N}{Path.GetExtension(file.Name)}");
+                    if (File.Exists(file.Path))
+                    {
+                        var newPath = Path.Combine(targetFolder,
+                            $"{Path.GetFileNameWithoutExtension(file.Name)}_dup_{Guid.NewGuid():N}{Path.GetExtension(file.Name)}");
 
-                    File.Move(file.Path, newPath);
+                        File.Move(file.Path, newPath);
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -122,4 +147,15 @@ public class DuplicateManager
             }
         }
     }
+}
+
+public class DeleteResult
+{
+    public List<string> DeletedFiles { get; set; } = new List<string>();
+    public List<string> NotFoundFiles { get; set; } = new List<string>();
+    public List<string> Errors { get; set; } = new List<string>();
+    public long TotalFreedSpace { get; set; }
+
+    public bool HasErrors => Errors.Any();
+    public bool HasNotFoundFiles => NotFoundFiles.Any();
 }

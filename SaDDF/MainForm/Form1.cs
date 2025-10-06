@@ -48,7 +48,9 @@ namespace MainForm
             cmbDeleteStrategy.Items.AddRange(new[] {
                 "Сохранить самые старые файлы",
                 "Сохранить самые новые файлы",
-                "Сохранить первые найденные"
+                "Сохранить первые найденные",
+                "Сохранить с самыми длинными именами",
+                "Сохранить с самыми короткими именами"
             });
             cmbDeleteStrategy.SelectedIndex = 1;
         }
@@ -143,7 +145,6 @@ namespace MainForm
             finally
             {
                 SetControlsState(true);
-                progressBar.Visible = false;
                 panelProgress.Visible = true;
             }
         }
@@ -188,28 +189,70 @@ namespace MainForm
             if (!_duplicates.Any())
                 return;
 
-            var strategy = cmbDeleteStrategy.SelectedIndex switch
+            // Получаем выбранные строки в DataGridView
+            var selectedIndices = new List<int>();
+            if (dgvDuplicates.SelectedRows.Count > 0)
             {
-                0 => DuplicateManager.DeleteStrategy.KeepOldest,
-                1 => DuplicateManager.DeleteStrategy.KeepNewest,
-                _ => DuplicateManager.DeleteStrategy.KeepFirstFound
-            };
+                selectedIndices.AddRange(
+                    dgvDuplicates.SelectedRows.Cast<DataGridViewRow>()
+                                             .Select(row => row.Index)
+                                             .Where(index => index >= 0 && index < _duplicates.Count)
+                );
+            }
+
+            // Если ничего не выбрано - удаляем все дубликаты
+            var groupsToDelete = selectedIndices.Any() ? selectedIndices :
+                Enumerable.Range(0, _duplicates.Count).ToList();
+
+            if (!groupsToDelete.Any())
+                return;
+
+            var totalDuplicates = groupsToDelete.Sum(i => _duplicates[i].Files.Count - 1);
+
+            var strategy = GetSelectedDeleteStrategy();
 
             var result = MessageBox.Show(
-                $"Вы уверены, что хотите удалить дубликаты?\n" +
-                $"Будет удалено {_duplicates.Sum(g => g.Files.Count - 1)} файлов.",
+                $"Вы уверены, что хотите удалить дубликаты?\n\n" +
+                $"Будет обработано: {groupsToDelete.Count} групп\n" +
+                $"Будет удалено: {totalDuplicates} файлов\n\n" +
+                $"Стратегия: {GetStrategyDescription(strategy)}",
                 "Подтверждение удаления",
                 MessageBoxButtons.YesNo,
                 MessageBoxIcon.Question);
 
             if (result == DialogResult.Yes)
             {
-                await DeleteDuplicates(strategy);
-                lstFileDetails.Items.Clear();
+                await DeleteDuplicates(groupsToDelete, strategy);
             }
         }
 
-        private async Task DeleteDuplicates(DuplicateManager.DeleteStrategy strategy)
+        private DuplicateManager.DeleteStrategy GetSelectedDeleteStrategy()
+        {
+            return cmbDeleteStrategy.SelectedIndex switch
+            {
+                0 => DuplicateManager.DeleteStrategy.KeepOldest,
+                1 => DuplicateManager.DeleteStrategy.KeepNewest,
+                2 => DuplicateManager.DeleteStrategy.KeepFirstFound,
+                3 => DuplicateManager.DeleteStrategy.KeepLargestName,
+                4 => DuplicateManager.DeleteStrategy.KeepShortestName,
+                _ => DuplicateManager.DeleteStrategy.KeepNewest
+            };
+        }
+
+        private string GetStrategyDescription(DuplicateManager.DeleteStrategy strategy)
+        {
+            return strategy switch
+            {
+                DuplicateManager.DeleteStrategy.KeepOldest => "Сохранить самые старые файлы",
+                DuplicateManager.DeleteStrategy.KeepNewest => "Сохранить самые новые файлы",
+                DuplicateManager.DeleteStrategy.KeepFirstFound => "Сохранить первые найденные",
+                DuplicateManager.DeleteStrategy.KeepLargestName => "Сохранить файлы с самыми длинными именами",
+                DuplicateManager.DeleteStrategy.KeepShortestName => "Сохранить файлы с самыми короткими именами",
+                _ => "Сохранить самые новые файлы"
+            };
+        }
+
+        private async Task DeleteDuplicates(List<int> groupIndices, DuplicateManager.DeleteStrategy strategy)
         {
             try
             {
@@ -224,17 +267,21 @@ namespace MainForm
                     lblProgress.Text = $"{value}%";
                 });
 
-                var deletedFiles = await _manager.DeleteDuplicatesAsync(
-                    _duplicates, strategy, progress: progress);
+                // Удаляем выбранные группы
+                var deleteResult = await _manager.DeleteSelectedDuplicatesAsync(
+                    _duplicates, groupIndices, strategy, progress, _cancellationTokenSource.Token);
 
-                MessageBox.Show($"Удалено {deletedFiles.Count} файлов.\n" +
-                              $"Освобождено {FormatFileSize(deletedFiles.Sum(f => new FileInfo(f).Length))} места.",
-                              "Удаление завершено",
-                              MessageBoxButtons.OK,
-                              MessageBoxIcon.Information);
+                // Показываем результаты
+                ShowDeleteResults(deleteResult);
 
                 // Обновляем список после удаления
                 await RefreshAfterDeletion();
+            }
+            catch (OperationCanceledException)
+            {
+                lblStatus.Text = "Удаление отменено";
+                MessageBox.Show("Удаление было отменено пользователем.", "Отмена",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {
@@ -249,23 +296,79 @@ namespace MainForm
             }
         }
 
+        private void ShowDeleteResults(DeleteResult result)
+        {
+            var message = new System.Text.StringBuilder();
+            message.AppendLine($"Удаление завершено!");
+            message.AppendLine($"Удалено файлов: {result.DeletedFiles.Count}");
+            message.AppendLine($"Освобождено места: {FormatFileSize(result.TotalFreedSpace)}");
+
+            if (result.NotFoundFiles.Any())
+            {
+                message.AppendLine($"\nНе найдено файлов: {result.NotFoundFiles.Count}");
+            }
+
+            if (result.Errors.Any())
+            {
+                message.AppendLine($"\nОшибок при удалении: {result.Errors.Count}");
+
+                // Показываем первые 5 ошибок
+                foreach (var error in result.Errors.Take(5))
+                {
+                    message.AppendLine($"  • {error}");
+                }
+
+                if (result.Errors.Count > 5)
+                {
+                    message.AppendLine($"  • ... и еще {result.Errors.Count - 5} ошибок");
+                }
+            }
+
+            MessageBox.Show(message.ToString(), "Результаты удаления",
+                MessageBoxButtons.OK,
+                result.HasErrors ? MessageBoxIcon.Warning : MessageBoxIcon.Information);
+        }
+
+
         private async Task RefreshAfterDeletion()
         {
             // Повторно сканируем чтобы обновить список
-            var searchPaths = lstSearchPaths.Items.Cast<string>().ToList();
-            var extensions = txtExtensions.Text.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
-                .Select(p => p.Trim().ToLower()).ToList();
+            try
+            {
+                lblStatus.Text = "Обновление списка...";
 
-            _finder = new DuplicateFinder(
-                searchPaths: searchPaths,
-                allowedExtensions: extensions,
-                includeSubdirectories: chkSubdirectories.Checked
-            );
+                var searchPaths = lstSearchPaths.Items.Cast<string>().ToList();
+                var excludedPaths = txtExcludedPaths.Text.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries)
+                    .Select(p => p.Trim()).ToList();
+                var extensions = txtExtensions.Text.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                    .Select(p => p.Trim().ToLower()).ToList();
 
-            var progress = new Progress<int>(value => progressBar.Value = value);
-            _duplicates = await _finder.FindDuplicatesAsync(progress);
+                _finder = new DuplicateFinder(
+                    searchPaths: searchPaths,
+                    excludedPaths: excludedPaths,
+                    allowedExtensions: extensions,
+                    includeSubdirectories: chkSubdirectories.Checked,
+                    minFileSize: (long)numMinSize.Value * 1024,
+                    maxFileSize: (long)numMaxSize.Value * 1024 * 1024
+                );
 
-            DisplayResults();
+                var progress = new Progress<int>(value =>
+                {
+                    progressBar.Value = value;
+                    lblProgress.Text = $"{value}%";
+                });
+
+                _duplicates = await _finder.FindDuplicatesAsync(progress);
+
+                DisplayResults();
+                lblStatus.Text = "Готов";
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при обновлении списка: {ex.Message}", "Ошибка",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                lblStatus.Text = "Ошибка обновления";
+            }
         }
 
         private void btnCancel_Click(object sender, EventArgs e)
@@ -337,7 +440,7 @@ namespace MainForm
         {
             // Устанавливаем значения по умолчанию
             txtExtensions.Text = ".jpg,.jpeg,.png,.gif,.bmp,.pdf,.doc,.docx,.txt";
-            numMinSize.Value = 1;
+            numMinSize.Value = 0;
             numMaxSize.Value = 100;
         }
     }

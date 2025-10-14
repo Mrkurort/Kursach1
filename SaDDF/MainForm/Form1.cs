@@ -17,8 +17,8 @@ namespace MainForm
     public partial class SaDDF : Form
     {
 
-        private DuplicateFinder _finder;
-        private DuplicateManager _manager;
+        private ClassSearchDupl _finder;
+        private ClassControlDupl _manager;
         private List<DuplicateGroup> _duplicates;
         private CancellationTokenSource _cancellationTokenSource;
 
@@ -31,8 +31,8 @@ namespace MainForm
 
         private void InitializeApp()
         {
-            _finder = new DuplicateFinder(new List<string>());
-            _manager = new DuplicateManager();
+            _finder = new ClassSearchDupl(new List<string>());
+            _manager = new ClassControlDupl();
             _duplicates = new List<DuplicateGroup>();
 
             // Настройка контролов
@@ -106,7 +106,7 @@ namespace MainForm
                 var extensions = txtExtensions.Text.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
                     .Select(p => p.Trim().ToLower()).ToList();
 
-                _finder = new DuplicateFinder(
+                _finder = new ClassSearchDupl(
                     searchPaths: searchPaths,
                     excludedPaths: excludedPaths,
                     allowedExtensions: extensions,
@@ -226,33 +226,33 @@ namespace MainForm
             }
         }
 
-        private DuplicateManager.DeleteStrategy GetSelectedDeleteStrategy()
+        private ClassControlDupl.DeleteStrategy GetSelectedDeleteStrategy()
         {
             return cmbDeleteStrategy.SelectedIndex switch
             {
-                0 => DuplicateManager.DeleteStrategy.KeepOldest,
-                1 => DuplicateManager.DeleteStrategy.KeepNewest,
-                2 => DuplicateManager.DeleteStrategy.KeepFirstFound,
-                3 => DuplicateManager.DeleteStrategy.KeepLargestName,
-                4 => DuplicateManager.DeleteStrategy.KeepShortestName,
-                _ => DuplicateManager.DeleteStrategy.KeepNewest
+                0 => ClassControlDupl.DeleteStrategy.KeepOldest,
+                1 => ClassControlDupl.DeleteStrategy.KeepNewest,
+                2 => ClassControlDupl.DeleteStrategy.KeepFirstFound,
+                3 => ClassControlDupl.DeleteStrategy.KeepLargestName,
+                4 => ClassControlDupl.DeleteStrategy.KeepShortestName,
+                _ => ClassControlDupl.DeleteStrategy.KeepNewest
             };
         }
 
-        private string GetStrategyDescription(DuplicateManager.DeleteStrategy strategy)
+        private string GetStrategyDescription(ClassControlDupl.DeleteStrategy strategy)
         {
             return strategy switch
             {
-                DuplicateManager.DeleteStrategy.KeepOldest => "Сохранить самые старые файлы",
-                DuplicateManager.DeleteStrategy.KeepNewest => "Сохранить самые новые файлы",
-                DuplicateManager.DeleteStrategy.KeepFirstFound => "Сохранить первые найденные",
-                DuplicateManager.DeleteStrategy.KeepLargestName => "Сохранить файлы с самыми длинными именами",
-                DuplicateManager.DeleteStrategy.KeepShortestName => "Сохранить файлы с самыми короткими именами",
+                ClassControlDupl.DeleteStrategy.KeepOldest => "Сохранить самые старые файлы",
+                ClassControlDupl.DeleteStrategy.KeepNewest => "Сохранить самые новые файлы",
+                ClassControlDupl.DeleteStrategy.KeepFirstFound => "Сохранить первые найденные",
+                ClassControlDupl.DeleteStrategy.KeepLargestName => "Сохранить файлы с самыми длинными именами",
+                ClassControlDupl.DeleteStrategy.KeepShortestName => "Сохранить файлы с самыми короткими именами",
                 _ => "Сохранить самые новые файлы"
             };
         }
 
-        private async Task DeleteDuplicates(List<int> groupIndices, DuplicateManager.DeleteStrategy strategy)
+        private async Task DeleteDuplicates(List<int> groupIndices, ClassControlDupl.DeleteStrategy strategy)
         {
             try
             {
@@ -343,7 +343,7 @@ namespace MainForm
                 var extensions = txtExtensions.Text.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
                     .Select(p => p.Trim().ToLower()).ToList();
 
-                _finder = new DuplicateFinder(
+                _finder = new ClassSearchDupl(
                     searchPaths: searchPaths,
                     excludedPaths: excludedPaths,
                     allowedExtensions: extensions,

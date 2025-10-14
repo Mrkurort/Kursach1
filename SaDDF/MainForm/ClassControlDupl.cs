@@ -5,7 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-public class DuplicateManager
+public class ClassControlDupl
 {
     public enum DeleteStrategy
     {

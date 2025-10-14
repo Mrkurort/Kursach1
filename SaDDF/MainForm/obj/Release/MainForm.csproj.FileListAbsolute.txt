@@ -24,3 +24,16 @@ C:\Users\DmitrievVD\Desktop\GitHubDesktop\Rep\Kursach1\SaDDF\MainForm\obj\Releas
 C:\Users\DmitrievVD\Desktop\GitHubDesktop\Rep\Kursach1\SaDDF\MainForm\obj\Release\MainForm.csproj.Up2Date
 C:\Users\DmitrievVD\Desktop\GitHubDesktop\Rep\Kursach1\SaDDF\MainForm\obj\Release\SaDDF.exe
 C:\Users\DmitrievVD\Desktop\GitHubDesktop\Rep\Kursach1\SaDDF\MainForm\obj\Release\SaDDF.pdb
+C:\Users\vdmit\OneDrive\Рабочий стол\!GitHub\Rep\Kursach1\SaDDF\MainForm\bin\Release\SaDDF.exe.config
+C:\Users\vdmit\OneDrive\Рабочий стол\!GitHub\Rep\Kursach1\SaDDF\MainForm\bin\Release\SaDDF.exe
+C:\Users\vdmit\OneDrive\Рабочий стол\!GitHub\Rep\Kursach1\SaDDF\MainForm\bin\Release\SaDDF.pdb
+C:\Users\vdmit\OneDrive\Рабочий стол\!GitHub\Rep\Kursach1\SaDDF\MainForm\bin\Release\Guna.UI2.dll
+C:\Users\vdmit\OneDrive\Рабочий стол\!GitHub\Rep\Kursach1\SaDDF\MainForm\obj\Release\MainForm.csproj.AssemblyReference.cache
+C:\Users\vdmit\OneDrive\Рабочий стол\!GitHub\Rep\Kursach1\SaDDF\MainForm\obj\Release\SaDDF.exe.config
+C:\Users\vdmit\OneDrive\Рабочий стол\!GitHub\Rep\Kursach1\SaDDF\MainForm\obj\Release\MainForm.SaDDF.resources
+C:\Users\vdmit\OneDrive\Рабочий стол\!GitHub\Rep\Kursach1\SaDDF\MainForm\obj\Release\MainForm.Properties.Resources.resources
+C:\Users\vdmit\OneDrive\Рабочий стол\!GitHub\Rep\Kursach1\SaDDF\MainForm\obj\Release\MainForm.csproj.GenerateResource.cache
+C:\Users\vdmit\OneDrive\Рабочий стол\!GitHub\Rep\Kursach1\SaDDF\MainForm\obj\Release\MainForm.csproj.CoreCompileInputs.cache
+C:\Users\vdmit\OneDrive\Рабочий стол\!GitHub\Rep\Kursach1\SaDDF\MainForm\obj\Release\MainForm.csproj.Up2Date
+C:\Users\vdmit\OneDrive\Рабочий стол\!GitHub\Rep\Kursach1\SaDDF\MainForm\obj\Release\SaDDF.exe
+C:\Users\vdmit\OneDrive\Рабочий стол\!GitHub\Rep\Kursach1\SaDDF\MainForm\obj\Release\SaDDF.pdb

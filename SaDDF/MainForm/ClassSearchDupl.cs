@@ -6,7 +6,7 @@ using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
 
-public class DuplicateFinder
+public class ClassSearchDupl
 {
     private readonly List<string> _searchPaths;
     private readonly List<string> _excludedPaths;
@@ -19,7 +19,7 @@ public class DuplicateFinder
     public List<string> SearchPaths => _searchPaths;
     public bool IncludeSubdirectories => _includeSubdirectories;
 
-    public DuplicateFinder(List<string> searchPaths, List<string> excludedPaths = null,
+    public ClassSearchDupl(List<string> searchPaths, List<string> excludedPaths = null,
                           List<string> allowedExtensions = null, bool includeSubdirectories = true,
                           long minFileSize = 0, long maxFileSize = long.MaxValue,
                           int bufferSize = 81920)
